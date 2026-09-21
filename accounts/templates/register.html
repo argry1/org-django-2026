@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Название страницы</title>
+  </head>
+  <body>
+    <form method="post">
+    {% csrf_token %}
+
+    {{ form.as_p }} <!-- as_p озанчает что каждое поле в форме обернется в тег <p> -->
+    <button type="submit">Зарегистрироваться</button>
+
+    <a href="{% url 'enter' %}" class="button">Вернуться</a>
+    </form>
+  </body>
+</html>
