@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}
+Создать заявку
+{% endblock %}
+
+{% block content %}
+
+<h1>Создать заявку на помощь</h1>
+
+<form method="post">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Создать заявку
+    </button>
+
+</form>
+
+{% endblock %}

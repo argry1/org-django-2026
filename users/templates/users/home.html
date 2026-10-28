@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Помощь рядом{% endblock %}
+
+{% block content %}
+
+<div class="bubble-home">
+
+    {% for help_request in help_requests %}
+
+        <div class="bubble bubble-{{ forloop.counter }}">
+
+            <span>ЗАЯВКА</span>
+
+            {{ help_request.title }}
+
+        </div>
+
+    {% endfor %}
+
+
+    <div class="bubble-center">
+
+        <div class="bubble-label">
+            ПЛАТФОРМА ПОМОЩИ
+        </div>
+
+        <h1>
+            Помощь<br>
+            <em>рядом.</em>
+        </h1>
+
+
+        {% if user.is_authenticated %}
+
+            <a href="{% url 'request_list' %}" class="bubble-button">
+                Смотреть заявки →
+            </a>
+
+        {% else %}
+
+            <a href="{% url 'register' %}" class="bubble-button">
+                Присоединиться →
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

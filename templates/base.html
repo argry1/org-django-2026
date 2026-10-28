@@ -1,0 +1,45 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Помощь рядом{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+<header>
+    <nav>
+        <a href="/">Помощь рядом</a>
+        <a href="/requests/">Заявки</a>
+        <a href="/rewards/">Баллы</a>
+        <a href="/partners/">Партнёры</a>
+        {% if user.is_authenticated %}
+
+            <span>Привет, {{ user.first_name|default:user.username }}!</span>
+            <a href="{% url 'profile' %}">Мой профиль</a>
+            <a href="{% url 'logout' %}">Выйти</a>
+
+        {% else %}
+
+            <a href="{% url 'login' %}">Войти</a>
+            <a href="{% url 'register' %}">Регистрация</a>
+
+        {% endif %}
+    </nav>
+</header>
+
+<main>
+    {% block content %}
+    {% endblock %}
+</main>
+
+<script src="{% static 'js/main.js' %}"></script>
+
+</body>
+</html>

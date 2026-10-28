@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="partner-dashboard">
+
+    <h1>Личный кабинет партнёра</h1>
+
+    <h2>Обращение в администрацию</h2>
+
+    <p>
+        Заполните информацию об организации и напишите сообщение
+        о сотрудничестве.
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="{{ form.email.id_for_label }}">
+                Email
+            </label>
+            {{ form.email }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.message.id_for_label }}">
+                Сообщение для администрации
+            </label>
+            {{ form.message }}
+        </div>
+
+        <button type="submit">
+            Отправить обращение
+        </button>
+    </form>
+
+</div>
+
+{% endblock %}

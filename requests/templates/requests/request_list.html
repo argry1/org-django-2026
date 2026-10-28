@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}Заявки{% endblock %}
+
+{% block content %}
+
+<h1>Заявки на помощь</h1>
+
+{% if user.is_authenticated and user.role == "pensioner" %}
+
+    <a href="{% url 'request_create' %}">
+        Создать заявку
+    </a>
+
+    <hr>
+
+    {% for request in requests %}
+        <div>
+            <h2>{{ request.title }}</h2>
+            <p>{{ request.description }}</p>
+            <p>Категория: {{ request.get_category_display }}</p>
+            <p>Адрес: {{ request.address }}</p>
+
+            {% if request.id in waiting_confirmation_ids %}
+
+                <p>Статус: Ждёт подтверждения</p>
+
+                <a href="{% url 'request_confirm' request.id %}">
+                    Подтвердить выполнение
+                </a>
+
+            {% else %}
+
+                <p>Статус: {{ request.get_status_display }}</p>
+
+            {% endif %}
+
+        </div>
+        <hr>
+    {% empty %}
+        <p>У вас пока нет заявок.</p>
+    {% endfor %}
+
+{% elif user.is_authenticated and user.role == "admin" %}
+
+    <hr>
+
+    {% for request in requests %}
+
+        <div>
+
+            <p>
+                <strong>Пенсионер:</strong>
+                {{ request.pensioner.first_name }}
+                {{ request.pensioner.last_name }}
+            </p>
+
+            <form method="post" action="{% url 'request_edit' request.id %}">
+
+                {% csrf_token %}
+
+                <p>
+                    <label for="title-{{ request.id }}">
+                        Название
+                    </label>
+                    <br>
+
+                    <input
+                        type="text"
+                        id="title-{{ request.id }}"
+                        name="title"
+                        value="{{ request.title }}"
+                    >
+                </p>
+
+                <p>
+                    <label for="description-{{ request.id }}">
+                        Описание
+                    </label>
+                    <br>
+
+                    <textarea
+                        id="description-{{ request.id }}"
+                        name="description"
+                        rows="5"
+                    >{{ request.description }}</textarea>
+                </p>
+
+                <p>
+                    <label for="status-{{ request.id }}">
+                        Статус
+                    </label>
+                    <br>
+
+                    <select
+                        id="status-{{ request.id }}"
+                        name="status"
+                    >
+                        <option value="open"
+                            {% if request.status == "open" %}selected{% endif %}>
+                            Открыта
+                        </option>
+
+                        <option value="in_progress"
+                            {% if request.status == "in_progress" %}selected{% endif %}>
+                            В работе
+                        </option>
+
+                        <option value="completed"
+                            {% if request.status == "completed" %}selected{% endif %}>
+                            Выполнена
+                        </option>
+
+                        <option value="cancelled"
+                            {% if request.status == "cancelled" %}selected{% endif %}>
+                            Отменена
+                        </option>
+                    </select>
+                </p>
+
+                <button type="submit">
+                    Сохранить изменения
+                </button>
+
+            </form>
+
+        </div>
+
+        <hr>
+
+    {% empty %}
+
+        <p>Заявок пока нет.</p>
+
+    {% endfor %}
+
+{% elif user.is_authenticated and user.role == "volunteer" %}
+
+    <!-- Переключатель разделов -->
+
+    <div class="tabs">
+        <button class="tab-button active" onclick="openTab('all', this)">
+            Все заявки
+        </button>
+
+        <button class="tab-button" onclick="openTab('in-progress', this)">
+            В работе
+        </button>
+
+        <button class="tab-button" onclick="openTab('completed', this)">
+            Завершённые
+        </button>
+    </div>
+
+    <hr>
+
+    <!-- Все заявки -->
+
+    <section id="all" class="tab-content active">
+        <h2>Все заявки</h2>
+
+        {% for request in requests %}
+            <div>
+                <h3>{{ request.title }}</h3>
+                <p>{{ request.description }}</p>
+                <p>Категория: {{ request.get_category_display }}</p>
+                <p>Адрес: {{ request.address }}</p>
+
+                {% if request.id in user_applications %}
+                    <p>✓ Вы уже откликнулись</p>
+                {% else %}
+                    <a href="{% url 'request_apply' request.id %}">
+                        Откликнуться
+                    </a>
+                {% endif %}
+            </div>
+
+            <hr>
+
+        {% empty %}
+            <p>Открытых заявок пока нет.</p>
+        {% endfor %}
+    </section>
+
+    <!-- В работе -->
+
+    <section id="in-progress" class="tab-content">
+        <h2>В работе</h2>
+
+        {% for request in in_progress_requests %}
+        
+            <div>
+                <h3>{{ request.title }}</h3>
+                <p>{{ request.description }}</p>
+                <p>Категория: {{ request.get_category_display }}</p>
+                <p>Адрес: {{ request.address }}</p>
+
+                <p>Статус: {{ request.get_status_display }}</p>
+                
+                <a href="{% url 'request_complete' request.id %}">
+                    Завершить помощь
+                </a>
+            </div>
+
+            <hr>
+
+        {% empty %}
+            <p>У вас пока нет заявок в работе.</p>
+        {% endfor %}
+    </section>
+
+    <!-- Завершённые -->
+
+    <section id="completed" class="tab-content">
+        <h2>Завершённые</h2>
+
+        {% for request in waiting_confirmation_requests %}
+            <div>
+                <h3>{{ request.title }}</h3>
+                <p>{{ request.description }}</p>
+                <p>Категория: {{ request.get_category_display }}</p>
+                <p>Адрес: {{ request.address }}</p>
+                <p>Статус: Ждёт подтверждения</p>
+            </div>
+        {% endfor %}
+
+        {% for request in completed_requests %}
+            <div>
+                <h3>{{ request.title }}</h3>
+                <p>{{ request.description }}</p>
+                <p>Категория: {{ request.get_category_display }}</p>
+                <p>Адрес: {{ request.address }}</p>
+                <p>Статус: {{ request.get_status_display }}</p>
+            </div>
+
+            <hr>
+
+        {% empty %}
+            <p>У вас пока нет завершённых заявок.</p>
+        {% endfor %}
+    </section>
+
+{% endif %}
+
+{% endblock %}
